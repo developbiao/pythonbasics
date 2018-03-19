@@ -1,0 +1,1 @@
+{"name": "ZhangLingmei", "age": 23, "socre": 90}
