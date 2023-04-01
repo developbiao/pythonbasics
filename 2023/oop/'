@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+#-*- coding:utf-8 -*-
+
+class people:
+    # Public property
+    name = ''
+    age = 0
+    # Prive property
+    __weight = 0
+
+    # Construct
+    def __init__(self, name, age, weight):
+        self.name = name
+        self.age = age
+        self.__weight = weight
+
+    # Sepak
+    def speak(self):
+        print("Hello My name is %s, Im %d years old.", self.name, self.age)
+
+
+# New Instance
+xiaoming = people('xiaoming', 27, 70)
+xiaoming.speak()
+
