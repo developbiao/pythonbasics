@@ -1,3 +1,3 @@
-a = 'This is __init__py file'
+a = 'This is __init__.py file'
 
 print(a)
