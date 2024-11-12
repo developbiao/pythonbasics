@@ -48,3 +48,6 @@ flower
 langgraph
 jupyterlab
 pygraphviz
+flask
+python-dotenv
+pypdf
