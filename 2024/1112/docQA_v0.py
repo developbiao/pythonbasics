@@ -1,133 +1,149 @@
 # -*- encoding: utf-8 -*-
 
 import os
+import logging
+from typing import List
 from dotenv import load_dotenv
-from langchain_google_vertexai import ChatVertexAI
-import json
-
-load_dotenv() # load .env file environment
-
-# init environemnt
-proxy = "http://192.168.1.38:7897"
-os.environ["HTTP_PROXY"] = proxy
-os.environ["HTTPS_PROXY"] = proxy
-os.environ["http_proxy"] = proxy
-os.environ["https_proxy"] = proxy
-
-# load google access config file
-credential_path=os.path.expanduser("/home/gongbiao/opt/config/google_access_token_cp.json")
-if os.path.exists(credential_path):
-    print(f"the config load success")
-else:
-    print("config file does'not exists!")
-
-# init vertex ai
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
-
-
-PROJECT_ID = "gen-lang-client-0115788367"
-LOCATION = "us-central1"
+from dataclasses import dataclass
+from langchain_google_vertexai import ChatVertexAI, VertexAIEmbeddings
+from langchain.document_loaders.base import BaseLoader
+from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader, TextLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.vectorstores import Qdrant
+from langchain.retrievers.multi_query import MultiQueryRetriever
+from langchain.chains import RetrievalQA
+from flask import Flask, request, render_template
 import vertexai
 
-vertexai.init(project=PROJECT_ID, location=LOCATION)
+# 配置类
+@dataclass
+class Config:
+    PROJECT_ID: str = "gen-lang-client-0115788367"
+    LOCATION: str = "us-central1"
+    PROXY: str = "http://192.168.1.38:7897"
+    CREDENTIAL_PATH: str = "/home/gongbiao/opt/config/google_access_token_cp.json"
+    MODEL_NAME: str = "gemini-1.5-flash"
+    EMBEDDING_MODEL: str = "text-embedding-004"
+    CHUNK_SIZE: int = 200
+    CHUNK_OVERLAP: int = 10
+    TEMPERATURE: float = 0.2
+    PORT: int = 5130
 
-# Import document loader
-from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader, TextLoader
+class DocumentProcessor:
+    def __init__(self, base_dir: str):
+        self.base_dir = base_dir
+        self.documents = []
+        self.text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=Config.CHUNK_SIZE,
+            chunk_overlap=Config.CHUNK_OVERLAP
+        )
 
-# 1. Load Documents
-base_dir = './OneFlower'
+    def load_documents(self) -> List:
+        file_handlers = {
+            '.docx': Docx2txtLoader,
+            '.pdf': PyPDFLoader,
+            '.txt': TextLoader
+        }
 
-print("#A0001")
+        for file in os.listdir(self.base_dir):
+            file_path = os.path.join(self.base_dir, file)
+            file_ext = os.path.splitext(file)[1]
 
-documents = []
-for file in os.listdir(base_dir):
-    # Build full file path
-    file_path = os.path.join(base_dir, file)
-    if file.endswith('.docx'):
-        loader = Docx2txtLoader(file_path)
-        documents.extend(loader.load())
-    if file.endswith('.pdf'):
-        loader = PyPDFLoader(file_path)
-        documents.extend(loader.load())
-    if file.endswith('.txt'):
-        loader = TextLoader(file_path)
-        documents.extend(loader.load())
+            if file_ext in file_handlers:
+                loader = file_handlers[file_ext](file_path)
+                self.documents.extend(loader.load())
 
-# 2. Split Documents to chunk save to vertex database
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-text_spliter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=10)
-chunked_documents = text_spliter.split_documents(documents)
-print("#A0002")
+        return self.documents
 
-# 3. Store chunk data to vertex database Qdrant
-from langchain_community.vectorstores import Qdrant
-from langchain_google_vertexai import VertexAIEmbeddings
-import logging
+    def split_documents(self):
+        return self.text_splitter.split_documents(self.documents)
 
-# Setting Logging
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+class VertexAISetup:
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
+        self.setup_logging()
+        self.setup_environment()
 
-logger.debug("Initializing Qdrant vectorstore...")
+    @staticmethod
+    def setup_logging():
+        logging.basicConfig(level=logging.DEBUG)
 
-vectorstore = Qdrant.from_documents(
-    documents=chunked_documents,
-    embedding=VertexAIEmbeddings(model_name="text-embedding-004"),
-    location=":memory:",
-    collection_name="my_documents", # Specify collection name
-)
+    def setup_environment(self):
+        load_dotenv()
 
-logger.debug("Qdrant vectorstore initialized successfully.")
+        # 设置代理
+        for proxy_var in ['HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy']:
+            os.environ[proxy_var] = Config.PROXY
 
-print("#001")
+        # 验证和设置凭证
+        if not os.path.exists(Config.CREDENTIAL_PATH):
+            raise FileNotFoundError("Google credentials file not found!")
 
-# 4. Retrieval prepare for LLM
-import logging
-from langchain.retrievers.multi_query import MultiQueryRetriever # MultiQueryRetriever tool
-from langchain.chains import RetrievalQA
+        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = Config.CREDENTIAL_PATH
 
-# Setting Logging
-logging.basicConfig()
-logging.getLogger('langchain.retrievers.multi_query').setLevel(logging.INFO)
-#os.environ["MOONSHOT_API_KEY"] = os.getenv("OPENAI_API_KEY")
+        # 初始化Vertex AI
+        vertexai.init(project=Config.PROJECT_ID, location=Config.LOCATION)
+        self.logger.info("Vertex AI initialized successfully")
 
-# # New chat model
-# llm = MoonshotChat(model="moonshot-v1-128k")
-# Use chat mode
-llm = ChatVertexAI(
-    model_name="gemini-1.5-flash",
-    temperature=0.2,
-)
+class QASystem:
+    def __init__(self, chunked_documents):
+        self.vectorstore = self.setup_vectorstore(chunked_documents)
+        self.llm = self.setup_llm()
+        self.qa_chain = self.setup_qa_chain()
 
-# New MultiQueryRetriever
-retriever_from_llm = MultiQueryRetriever.from_llm(retriever=vectorstore.as_retriever(), llm=llm)
+    def setup_vectorstore(self, chunked_documents):
+        return Qdrant.from_documents(
+            documents=chunked_documents,
+            embedding=VertexAIEmbeddings(model_name=Config.EMBEDDING_MODEL),
+            #location=":memory:",
+            location="192.168.1.66:6333",
+            collection_name="my_documents"
+        )
 
-# New RetrievalQA chain
-qa_chain = RetrievalQA.from_chain_type(llm, retriever=retriever_from_llm)
+    def setup_llm(self):
+        return ChatVertexAI(
+            model_name=Config.MODEL_NAME,
+            temperature=Config.TEMPERATURE
+        )
 
-print("#002")
+    def setup_qa_chain(self):
+        retriever = MultiQueryRetriever.from_llm(
+            retriever=self.vectorstore.as_retriever(),
+            llm=self.llm
+        )
+        return RetrievalQA.from_chain_type(self.llm, retriever=retriever)
 
-# 5. Output QA UI implement
-from flask import Flask, json, request, render_template
-app = Flask(__name__) # Flask App
+    def get_answer(self, question: str):
+        return self.qa_chain({"query": question})
 
-print("#003")
+def create_app(qa_system):
+    app = Flask(__name__)
 
-@app.route('/', methods=['GET', 'POST'])
-def home():
-    if request.method == 'POST':
-        # Received question
-        question = request.form.get('question')
+    @app.route('/', methods=['GET', 'POST'])
+    def home():
+        if request.method == 'POST':
+            question = request.form.get('question')
+            result = qa_system.get_answer(question)
+            return render_template('index.html', result=result)
+        return render_template('index.html')
 
-        # RetrievalQA chain - Read question and generate answer
-        result = qa_chain({"query": question})
+    return app
 
-        # Render result for page
-        return render_template('index.html', result=result)
-    return render_template('index.html')
+def main():
+    # 初始化Vertex AI设置
+    vertex_setup = VertexAISetup()
 
-print("#004")
+    # 处理文档
+    doc_processor = DocumentProcessor('./OneFlower')
+    documents = doc_processor.load_documents()
+    chunked_documents = doc_processor.split_documents()
+
+    # 设置QA系统
+    qa_system = QASystem(chunked_documents)
+
+    # 创建并运行Flask应用
+    app = create_app(qa_system)
+    app.run(host='0.0.0.0', debug=True, port=Config.PORT)
+
 if __name__ == '__main__':
-    print("#005")
-    print("Start running server...")
-    app.run(host='0.0.0.0', debug=True, port=5130)
+    main()
