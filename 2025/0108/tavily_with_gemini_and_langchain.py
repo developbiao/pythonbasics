@@ -28,9 +28,9 @@ _set_env("TAVILY_API_KEY")
 client = TavilyClient()
 
 # step 2. Executing the search query and getting the results
-content = client.search("What happened in the latest chengdu news?", search_depth="advanced")["results"]
+content = client.search("What happened in the latest beijing news?", search_depth="advanced")["results"]
 
-query = "Today is 2025/01/08 What is the latest news in Chengdu?"
+query = "北京最近有什么大事件发生？"
 
 # step 3. Setting up the prompts
 prompt = [{
@@ -43,7 +43,8 @@ prompt = [{
     "content": f'Information: """{content}"""\n\n' \
                f'Using the above information, answer the following'\
                f'query: "{query}" in a detailed report --'\
-               f'Please use MLA format and markdown syntax.'
+               f'Please use MLA format and markdown syntax.'\
+               f'Please answer use chinese language.' 
 }]
 
 
