@@ -1,0 +1,11 @@
+{
+    "mcpServers": {
+      "my-mcp-server": {
+        "command": "mcp run",
+        "args": ["/Users/gongbiao/Workspace/pythonbasics/2025/0316/mcp-example/test-mcp.py"],
+        "env": {
+          "API_KEY": "value"
+        }
+      }
+    }
+} 
