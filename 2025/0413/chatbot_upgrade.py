@@ -19,7 +19,7 @@ def _set_env(var: str):
 
 
 # Set google api key
-_set_env("GOOGLE_API_KEY")
+_set_env("DASHSCOPE_API_KEY")
 # Set tavily api key
 _set_env("TAVILY_API_KEY")
 
@@ -33,7 +33,8 @@ from typing_extensions import TypedDict
 
 from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_community.chat_models.tongyi import ChatTongyi
+from langchain_community.llms import Tongyi
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langgraph.prebuilt import ToolNode, tools_condition
 
@@ -44,13 +45,11 @@ class State(TypedDict):
     # (in this case, it appends messages to the list, rather than overwriting them)
     messages: Annotated[list, add_messages]
 
-# Set up the Gemini model
-llm = ChatGoogleGenerativeAI(
-    model="gemini-2.0-flash-001",
+# Set up the Tongyi model
+llm = ChatTongyi(
+    model="qwen-vl-plus",
     temperature=0.2,
-    max_tokens=512,
-    timeout=None,
-    max_retries=2
+    api_key=os.environ["DASHSCOPE_API_KEY"]
 )
 
 search_tool =  TavilySearchResults(max_results=2)
@@ -78,11 +77,7 @@ graph_builder.add_node("tools", tool_node)
 graph_builder.add_conditional_edges(
     "chatbot",
     tools_condition,
-    {"tools": "tools", "END": END}  
 )
-
-# 设置从 START 到 "chatbot" 的边
-graph_builder.add_edge(START, "chatbot")
 
 # Any time a tool is called, we return to the chatbot to decide the next step  # Fixed typo
 graph_builder.add_edge("tools", "chatbot")
