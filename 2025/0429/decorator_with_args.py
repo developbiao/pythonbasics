@@ -12,4 +12,3 @@ def greet(arg1, arg2):
     print('arg1: {}, arg2: {}'.format(arg1, arg2))
 
 greet('Hello Beijing', 'I from Chengdu')
-
