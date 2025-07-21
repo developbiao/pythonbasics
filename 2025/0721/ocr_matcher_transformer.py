@@ -23,7 +23,12 @@ database_indicators = [
         "id": 411,
         "name": "总胆固醇",
         "alias": "血清总胆固醇, TC"
-    }
+    },
+    {
+        "id": 309,
+        "name": "平均血小板体积",
+        "alias": "平均血小板体积., 平均血小板体积（MP, 平均血小板体积（MP）, 平均血小板体积（MPV）, 血小板平均体积"
+  }
 ]
 
 # --- 2. 加载预训练的语义模型 ---
@@ -120,3 +125,9 @@ if __name__ == "__main__":
     result4 = find_best_semantic_match(query4, database_indicators, model)
     print(f"\n--- 测试4: 无匹配项 ---")
     print(result4)
+    
+    # 测试用例 5: 测试另一个指标
+    query5 = "平均血小板体test"
+    result5 = find_best_semantic_match(query5, database_indicators, model)
+    print(f"\n--- 测试5: 另一个指标配项 ---")
+    print(result5)
