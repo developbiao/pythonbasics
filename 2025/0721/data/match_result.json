@@ -1,0 +1,189 @@
+[
+  {
+    "query": "白细胞",
+    "matched_term": "白细胞.",
+    "score": 0.9959086179733276,
+    "hit_indicator": {
+      "id": 287,
+      "name": "白细胞计数",
+      "alias": "白细胞., 白细胞(WBC), 白细胞（XCG）, 白细胞（沉渣仪计数）, 白细胞（血）, 白细胞（血球）, 白细胞数, 白细胞数（WBC）, 白细胞数目, 白细胞数目(WBC), 白细胞计数(WBC), 白细胞计数[WBC]"
+    },
+    "original_indicator": {
+      "name": "白细胞",
+      "unit": "",
+      "refer": "阴性(-)",
+      "value": "",
+      "system": "泌尿系统"
+    }
+  },
+  {
+    "query": "尿潜血",
+    "matched_term": "尿潜血",
+    "score": 1.0,
+    "hit_indicator": {
+      "id": 263,
+      "name": "潜血",
+      "alias": "尿液潜血, 尿潜血, 尿隐血"
+    },
+    "original_indicator": {
+      "name": "尿潜血",
+      "unit": "",
+      "refer": "阴性(-)",
+      "value": "",
+      "system": "泌尿系统"
+    }
+  },
+  {
+    "query": "亚硝酸盐",
+    "matched_term": "亚硝酸盐",
+    "score": 1.0,
+    "hit_indicator": {
+      "id": 262,
+      "name": "亚硝酸盐",
+      "alias": "亚硝酸, 亚硝酸盐(NIT), 尿亚硝酸盐, 尿亚硝酸盐(NIT), 尿液亚硝酸盐"
+    },
+    "original_indicator": {
+      "name": "亚硝酸盐",
+      "unit": "",
+      "refer": "阴性(-)",
+      "value": "",
+      "system": "泌尿系统"
+    }
+  },
+  {
+    "query": "蛋白质",
+    "matched_term": "总蛋白",
+    "score": 0.9377614259719849,
+    "hit_indicator": {
+      "id": 244,
+      "name": "总蛋白",
+      "alias": "总蛋白(T PROT), 总蛋白（TP）, 总蛋白（TPROT）, 总蛋白测定, 血清总蛋白, 血清总蛋白测定(TP)"
+    },
+    "original_indicator": {
+      "name": "蛋白质",
+      "unit": "",
+      "refer": "阴性(-)",
+      "value": "",
+      "system": "泌尿系统"
+    }
+  },
+  {
+    "query": "葡萄糖",
+    "matched_term": "血糖",
+    "score": 0.9717017412185669,
+    "hit_indicator": {
+      "id": 230,
+      "name": "空腹血糖",
+      "alias": "空腹葡萄糖, 空腹血糖, 空腹血糖（FBG）, 空腹血糖（FPG）, 空腹血糖(GLU), 空腹⾎葡萄糖, 葡萄糖（空腹）, 葡萄糖GLU（空腹）, 血清葡萄糖（GLU）, 血糖, 血糖（空腹）"
+    },
+    "original_indicator": {
+      "name": "葡萄糖",
+      "unit": "",
+      "refer": "阴性(-)",
+      "value": "",
+      "system": "泌尿系统"
+    }
+  },
+  {
+    "query": "胆红素",
+    "matched_term": "胆红素",
+    "score": 1.0,
+    "hit_indicator": {
+      "id": 259,
+      "name": "胆红素",
+      "alias": "尿液胆红素, 尿胆红素, 尿胆红素(BIL), 尿胆红素定性, 胆红素(BIL)"
+    },
+    "original_indicator": {
+      "name": "胆红素",
+      "unit": "",
+      "refer": "阴性(-)",
+      "value": "",
+      "system": "泌尿系统"
+    }
+  },
+  {
+    "query": "酮体",
+    "matched_term": "酮体",
+    "score": 1.0,
+    "hit_indicator": {
+      "id": 260,
+      "name": "酮体",
+      "alias": "尿酮体, 尿酮体(KET), 酮体(KET), 酮体定性"
+    },
+    "original_indicator": {
+      "name": "酮体",
+      "unit": "",
+      "refer": "阴性(-)",
+      "value": "",
+      "system": "泌尿系统"
+    }
+  },
+  {
+    "query": "尿胆原",
+    "matched_term": "尿胆原",
+    "score": 1.0,
+    "hit_indicator": {
+      "id": 267,
+      "name": "尿胆原",
+      "alias": "尿胆原定性"
+    },
+    "original_indicator": {
+      "name": "尿胆原",
+      "unit": "",
+      "refer": "阴性(-)",
+      "value": "",
+      "system": "泌尿系统"
+    }
+  },
+  {
+    "query": "PH值",
+    "matched_term": "pH值",
+    "score": 0.9316529035568237,
+    "hit_indicator": {
+      "id": 265,
+      "name": "pH值",
+      "alias": "PH（尿）, pH值(pH), 尿PH值, 尿液酸碱度, 尿酸碱度(PH), 酸碱度(PH)"
+    },
+    "original_indicator": {
+      "name": "PH值",
+      "unit": "",
+      "refer": "5.0~8.0",
+      "value": "6.5",
+      "system": "泌尿系统"
+    }
+  },
+  {
+    "query": "比重(泌尿系统)",
+    "matched_term": "尿液比重",
+    "score": 0.8867992162704468,
+    "hit_indicator": {
+      "id": 266,
+      "name": "尿比重",
+      "alias": "尿比重(SG), 尿液比重"
+    },
+    "original_indicator": {
+      "name": "比重(泌尿系统)",
+      "unit": "",
+      "refer": "1.003-1.030",
+      "value": "1.013",
+      "system": "泌尿系统"
+    }
+  },
+  {
+    "query": "维生素C",
+    "matched_term": "维生素C",
+    "score": 0.9999998807907104,
+    "hit_indicator": {
+      "id": 268,
+      "name": "维生素C",
+      "alias": "VC, 尿维生素C, 尿维生素C（VC）, 尿维生素C（Vitc）, 维生素C（VC）, 维生素C(尿)"
+    },
+    "original_indicator": {
+      "name": "维生素C",
+      "unit": "",
+      "refer": "阴性(-)",
+      "value": "1+",
+      "system": "泌尿系统"
+    }
+  }
+]
